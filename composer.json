@@ -1,0 +1,15 @@
+{
+        "name": "tbwa/instagen",
+        "authors": [
+            {
+                "name": "David Alvarez",
+                "email": "david.alvarez@tbwa.com"
+            }
+        ],
+        "require": {
+            "guzzlehttp/guzzle": "~6.0",
+            "monolog/monolog": "1.0.*",
+                "twig/twig": "~1.0",
+                "twbs/bootstrap": "^3.3"
+        }
+    }

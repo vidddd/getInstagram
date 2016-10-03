@@ -1,0 +1,75 @@
+html, body, .bg {
+    height: 100%;
+    margin: 0;
+}
+body {
+    background: #fff none repeat scroll 0 0;
+    color: #69606b;
+    font-family: "Raleway",Arial,sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+.bg {
+    margin: 0 auto;
+    min-height: 560px;
+    position: relative;
+    width: 100%;
+}
+#content .bg {
+    position: absolute;
+}
+#content .bg-img::before {
+    background-color: rgba(79, 77, 77, 0.44);
+    height: 100%;
+    width: 100%;
+}
+#content .bg-img::after {
+    background: #fff none repeat scroll 0 0;
+    height: 100%;
+    right: 0;
+    top: 0;
+    transform: translateX(100%);
+    width: 60%;
+}
+.bg-img {
+    backface-visibility: hidden;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.bg-img img {
+    display: block;
+    left: 0;
+    min-height: 100%;
+    min-width: 100%;
+    position: absolute;
+    top: 0;
+}
+#content .bg-img img {
+    left: auto;
+    right: 0;
+}
+.content-left {
+    margin-left: 40%;
+    padding: 2em 1em;
+    position: relative;
+    width: 60%;
+    height: 100%;
+    background: #fff;
+}
+hr {
+    background-color: transparent;
+    border-top: 2px dashed #8c8b8b;
+    margin: 18px 0;
+}
+.containers {
+    margin: 0 auto 1.5em 0.8em;
+    max-width: 900px;
+    padding: 0 1.25em;
+}
