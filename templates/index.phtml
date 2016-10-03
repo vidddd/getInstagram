@@ -23,6 +23,7 @@
                     <div class="headline">
                         <h2>Get from Instagram</h2> <hr>
                         <p>Type by tags</p>
+                        <?=$ok?>
                     </div>
                 </div>
                 <div class="row">
@@ -30,14 +31,14 @@
                         <div class="row control-group">
                           <div class="form-group col-xs-12 floating-label-form-group controls">
                             <label>Tag</label>
-                            <input class="form-control" placeholder="Tags" name="tags" id="tags" required="" data-validation-required-message="Please enter y." aria-invalid="false" type="text">
+                            <input class="form-control" placeholder="Tags" name="tags" id="tags" data-validation-required-message="Please enter tags." aria-invalid="false" type="text" required>
                             <p class="help-block text-danger"></p>
                           </div>
                         </div>
                         <div class="row control-group">
                           <div class="form-group col-xs-12 floating-label-form-group controls">
                             <label>Username</label>
-                            <input class="form-control" placeholder="Username" name="username" id="username" required="" data-validation-required-message="Please enter your email address." aria-invalid="false" type="text">
+                            <input class="form-control" placeholder="Username" name="username" id="username" required data-validation-required-message="Please enter your email address." aria-invalid="false" type="text">
                             <p class="help-block text-danger"></p>
                           </div>
                         </div>
