@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "52d9254277aa21a3d5829e7bd732ede7",
-    "content-hash": "2c1fa290f36dd7877947e83eb8b9a91e",
+    "hash": "a763624c2a2cbc1db70a89dacc5e8330",
+    "content-hash": "214c4bda25c667b4df22ccbeedc63534",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -204,6 +204,50 @@
                 "uri"
             ],
             "time": "2016-06-24 23:00:38"
+        },
+        {
+            "name": "mgp25/instagram-php",
+            "version": "v1.5.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mgp25/Instagram-API.git",
+                "reference": "dd62c6dd47bf25129e536b134ab640512adfdb6c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mgp25/Instagram-API/zipball/dd62c6dd47bf25129e536b134ab640512adfdb6c",
+                "reference": "dd62c6dd47bf25129e536b134ab640512adfdb6c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-gd": "*",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "mgp25",
+                    "email": "me@mgp25.com"
+                }
+            ],
+            "description": "Instagram private API PHP",
+            "keywords": [
+                "api",
+                "instagram",
+                "php",
+                "private"
+            ],
+            "time": "2016-09-27 08:11:47"
         },
         {
             "name": "monolog/monolog",
