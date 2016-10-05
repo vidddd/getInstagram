@@ -19,6 +19,8 @@
             </div>
             <div class="content-left">
                 <div class="containers">
+                    <div class="login"> <a href="<?=$urllogin?>">Login in Instagram</a>
+                    </div>
                 <?php if($error) {?>
                     <div class="error">
                         <?=$error_reason?>
@@ -27,34 +29,50 @@
                 <div class="row space">
                     <div class="headline">
                         <h2>Get from Instagram</h2> <hr>
-                        <p>Type by tags</p>
-                        <?=$ok?>
+                        <p>App in sandbox mode</p>
                     </div>
                 </div>
+                
                 <div class="row">
                     <form name="getInst" id="instagramForm" method="POST" action="busca" novalidate="">
                         <div class="row control-group">
-                          <div class="form-group col-xs-12 floating-label-form-group controls">
+                          <div class="form-group col-xs-6 floating-label-form-group controls">
                             <label>Tag</label>
                             <input class="form-control" placeholder="Tags" name="tags" id="tags" data-validation-required-message="Please enter tags." aria-invalid="false" type="text" required>
-                            <p class="help-block text-danger"></p>
+                            <p class="help-block text-danger">Type by media tags</p>
                           </div>
-                        </div>
-                        <div class="row control-group">
-                          <div class="form-group col-xs-12 floating-label-form-group controls">
+                            <div class="form-group col-xs-6 floating-label-form-group controls">
                             <label>Username</label>
                             <input class="form-control" placeholder="Username" name="username" id="username" required data-validation-required-message="Please enter your email address." aria-invalid="false" type="text">
-                            <p class="help-block text-danger"></p>
+                            <p class="help-block text-danger">323232</p>
                           </div>
                         </div>
                         <br>
+                        <input name="access_token" type="hidden" value="<?=$access_token?>"/> 
                         <div id="success"></div>
-                        <div class="row">
                           <div class="form-group col-xs-12">
-                            <button type="submit" class="btn btn-success btn-lg">Get Posts !!</button>
+                            <button type="submit" class="btn btn-success btn-lg">Get Media !!</button>
                           </div>
                         </div>
-            </form>
+                    </form>
+                    <?php print_r($access_token); ?>
+                    <div class="row">
+                        <div class="media">
+                            <?php foreach($results['data'] as $media) { ?>
+                                <div class="media-item">
+                                    <div class="photo"><img src="<?=$media['images']['low_resolution']['url']?>" alt="" /></div>
+	
+                                        <p class="galeria-user">@<?=$media['user']['username']?></p>
+                                        <p class="galeria-caption"><?=$media['caption']['text']?></p>
+                                        <p><a href=""></a></p>				
+				 </div>
+                            <? } ?>
+                         </div>
+                    </div>
+                        
+                    <pre>
+                        <?php print_r($results); ?>
+                    </pre>
                 </div>
                 </div>
             </div>
