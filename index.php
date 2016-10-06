@@ -63,18 +63,29 @@ $app->get('/dos', function (Request $request, Response $response) {
 
 // PULSAMOS GET POSTS !!!
 $app->post('/busca', function (Request $request, Response $response) {
+    $results = array();
+    $tag = $request->getParam('tag'); 
+    $username = $request->getParam('username');
     $access_token = $request->getParam('access_token');
-    //    $app->get('/tags/search', function() use($app, $client, $access_token) {
-    $client = new GuzzleHttp\Client();
-    $tag = 'tbwa'; 
-    $mediaid='tsxp1hhQTG'; $uid = '12693727';
-    $res = $client->get("https://api.instagram.com/v1/tags/{$tag}/media/recent?access_token={$access_token}");
-    //$res = $client->get("https://api.instagram.com/v1/media/shortcode/$mediaid?access_token=$access_token");
-    
-   // $res = $client->get("https://api.instagram.com/v1/users/$uid/?access_token=$access_token");
-    $results =  json_decode($res->getBody()->getContents(), true);
+        $client = new GuzzleHttp\Client();
 
-    $response = $this->view->render($response, "index.phtml", array('access_token' => $access_token, 'urllogin' => URL_LOGIN, "results" => $results));
+        if($tag != '') {
+            $res = $client->get("https://api.instagram.com/v1/tags/{$tag}/media/recent?access_token={$access_token}"); 
+            $results =  json_decode($res->getBody()->getContents(), true);
+        } /*
+        if ($username != '') {
+           // echo "https://api.instagram.com/v1/users/search?q={$username}&access_token={$access_token}"; die;
+            $res = $client->get("https://api.instagram.com/v1/users/search?q={$username}&access_token={$access_token}");
+            $results =  json_decode($res->getBody()->getContents(), true);
+        } else {
+           $res = $client->get("https://api.instagram.com/v1/users/self/?access_token={$access_token}"); 
+             $results =  json_decode($res->getBody()->getContents(), true);
+        } 
+        */
+        $response = $this->view->render($response, "index.phtml", array('access_token' => $access_token, 
+                                                                        'urllogin' => URL_LOGIN, 
+                                                                            "results" => $results,
+                                                                            'tag' => $tag, 'username' => $username));
     return $response;
 });
 

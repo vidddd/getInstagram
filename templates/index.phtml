@@ -2,10 +2,15 @@
 <html>
     <head>
         <title>Get Instagram to Ecoembres</title>
+
+        <meta charset="UTF-8">
+       
         <link rel="stylesheet" href="css/bootstrap.min.css" />
         <link rel="stylesheet" href="css/style.css" />
-        
-        <meta charset="UTF-8">
+        <script src="js/jquery.min.js" type="text/javascript"></script>
+        <script src="js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="js/validator.js" type="text/javascript"></script>
+   
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
@@ -19,7 +24,7 @@
             </div>
             <div class="content-left">
                 <div class="containers">
-                    <div class="login"> <a href="<?=$urllogin?>">Login in Instagram</a>
+                    <div class="login"> <a href="<?=$urllogin?>">Login in Instagram</a>                   <?php print($access_token); ?>
                     </div>
                 <?php if($error) {?>
                     <div class="error">
@@ -34,45 +39,46 @@
                 </div>
                 
                 <div class="row">
-                    <form name="getInst" id="instagramForm" method="POST" action="busca" novalidate="">
+                    <form name="getInst" id="instagramForm" method="POST" action="busca" data-toggle="validator" role="form">
                         <div class="row control-group">
                           <div class="form-group col-xs-6 floating-label-form-group controls">
                             <label>Tag</label>
-                            <input class="form-control" placeholder="Tags" name="tags" id="tags" data-validation-required-message="Please enter tags." aria-invalid="false" type="text" required>
-                            <p class="help-block text-danger">Type by media tags</p>
+                            <input class="form-control" placeholder="Tags" name="tag" id="tag" required type="text" value="<?=$tag?>" />
+                            <p class="help-block text-danger">Type by media tag</p>
                           </div>
-                            <div class="form-group col-xs-6 floating-label-form-group controls">
+                          <!--  <div class="form-group col-xs-6 floating-label-form-group controls">
                             <label>Username</label>
-                            <input class="form-control" placeholder="Username" name="username" id="username" required data-validation-required-message="Please enter your email address." aria-invalid="false" type="text">
-                            <p class="help-block text-danger">323232</p>
-                          </div>
+                            <input class="form-control" placeholder="Username" name="username" id="username" type="text" value="<?=$username?>" />
+                            <p class="help-block text-danger">Type a username</p>
+                          </div> -->
                         </div>
                         <br>
-                        <input name="access_token" type="hidden" value="<?=$access_token?>"/> 
+                            <input name="access_token" type="hidden" value="<?=$access_token?>"/> 
                         <div id="success"></div>
                           <div class="form-group col-xs-12">
                             <button type="submit" class="btn btn-success btn-lg">Get Media !!</button>
                           </div>
                         </div>
                     </form>
-                    <?php print_r($access_token); ?>
+   
                     <div class="row">
                         <div class="media">
-                            <?php foreach($results['data'] as $media) { ?>
+                            <?php if(!empty($results['data'])){ foreach($results['data'] as $media) { ?>
                                 <div class="media-item">
                                     <div class="photo"><img src="<?=$media['images']['low_resolution']['url']?>" alt="" /></div>
 	
                                         <p class="galeria-user">@<?=$media['user']['username']?></p>
                                         <p class="galeria-caption"><?=$media['caption']['text']?></p>
-                                        <p><a href=""></a></p>				
+                                        <p><a href="<?=$media['link']?>" target="_blank"><?=$media['link']?></a></p>				
 				 </div>
-                            <? } ?>
+                            <? } } ?>
                          </div>
                     </div>
-                        
+           
                     <pre>
                         <?php print_r($results); ?>
-                    </pre>
+                    </pre> 
+               
                 </div>
                 </div>
             </div>
