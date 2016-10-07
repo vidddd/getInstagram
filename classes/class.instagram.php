@@ -73,11 +73,33 @@ class Instagram
     
     public static function getMediaTag($tag, $access_token){
         $client = new GuzzleHttp\Client();
-        $tag = filter_var ( $tag, FILTER_SANITIZE_URL);
+        $tag = Instagram::sanitize($tag);
         if($tag != '') {
             $res = $client->get("https://api.instagram.com/v1/tags/{$tag}/media/recent?access_token={$access_token}"); 
             $results =  json_decode($res->getBody()->getContents(), true);
         } 
         return $results;
     }
+    /**
+    * Function: sanitize
+    * Returns a sanitized string, typically for URLs.
+    *
+    * Parameters:
+    *     $string - The string to sanitize.
+    *     $force_lowercase - Force the string to lowercase?
+    *     $anal - If set to *true*, will remove all non-alphanumeric characters.
+    */
+   public static function sanitize($string, $force_lowercase = true, $anal = false) {
+       $strip = array("~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "=", "+", "[", "{", "]",
+                      "}", "\\", "|", ";", ":", "\"", "'", "&#8216;", "&#8217;", "&#8220;", "&#8221;", "&#8211;", "&#8212;",
+                      "â€”", "â€“", ",", "<", ".", ">", "/", "?");
+       $clean = trim(str_replace($strip, "", strip_tags($string)));
+       $clean = preg_replace('/\s+/', "-", $clean);
+       $clean = ($anal) ? preg_replace("/[^a-zA-Z0-9]/", "", $clean) : $clean ;
+       return ($force_lowercase) ?
+           (function_exists('mb_strtolower')) ?
+               mb_strtolower($clean, 'UTF-8') :
+               strtolower($clean) :
+           $clean;
+   }
 }
