@@ -1,9 +1,8 @@
 html, body, .bg {
-    height: 100%;
     margin: 0;
 }
 body {
-    background: #fff none repeat scroll 0 0;
+    background: #351626 none repeat scroll 0 0;
     color: #69606b;
     font-family: "Raleway",Arial,sans-serif;
     font-size: 14px;
@@ -13,7 +12,7 @@ body {
 }
 .bg {
     margin: 0 auto;
-    min-height: 560px;
+    min-height: 860px;
     position: relative;
     width: 100%;
 }
@@ -29,9 +28,8 @@ body {
     background: #fff none repeat scroll 0 0;
     height: 100%;
     right: 0;
-    top: 0;
-    transform: translateX(100%);
-    width: 60%;
+    transform: translateX(50%);
+    width: 100%;
 }
 .bg-img {
     backface-visibility: hidden;
@@ -45,9 +43,9 @@ body {
 
 .bg-img img {
     display: block;
-    left: 0;
-    min-height: 100%;
-    min-width: 100%;
+    left: 6vw;
+    min-height: 60%;
+    max-width: 100%;
     position: absolute;
     top: 0;
 }
@@ -101,4 +99,9 @@ hr {
 }
 .media-item .galeria-user {
     font-weight: bold; margin-top:5px;
+}
+
+.login {
+    float: right;
+    padding: 10px;
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Get Instagram to Ecoembres</title>
+        <title>Get Instagram app</title>
 
         <meta charset="UTF-8">
        
@@ -18,18 +18,25 @@
             <div class="intro">
                 <div class="bg">
                     <div class="bg-img">
-                        <img src="images/bg1280x788.jpg" />
+                        <img src="images/IMG_1266.JPG" />
                     </div>
                 </div>
             </div>
             <div class="content-left">
                 <div class="containers">
-                    <div class="login"> <a href="<?=$urllogin?>">Login in Instagram</a>                   <?php print($access_token); ?>
+                    <div class="login">
+                        <?php if(!$login){ ?>
+                                    <a href="instalogin">Login in Instagram</a>                   
+                            <?php } else { ?>
+                                    <div class="profile-pic"><img height="100" weight="100" src="<?=$profile_picture?>" alt="" /></div>
+                                    <h3><?=$username?></h3>
+                                    <a href="logout">Logout</a>  
+                         <?php }  ?>
                     </div>
                 <?php if($error) {?>
-                    <div class="error">
-                        <?=$error_reason?>
-                    </div>
+                        <div class="alert alert-danger">
+                          <strong><?=$error_type?></strong><?=$error_reason?>
+                        </div>
                 <? } ?>
                 <div class="row space">
                     <div class="headline">
@@ -37,14 +44,14 @@
                         <p>App in sandbox mode</p>
                     </div>
                 </div>
-                
+                <? if($login) { ?>
                 <div class="row">
                     <form name="getInst" id="instagramForm" method="POST" action="busca" data-toggle="validator" role="form">
                         <div class="row control-group">
                           <div class="form-group col-xs-6 floating-label-form-group controls">
                             <label>Tag</label>
                             <input class="form-control" placeholder="Tags" name="tag" id="tag" required type="text" value="<?=$tag?>" />
-                            <p class="help-block text-danger">Type by media tag</p>
+                            <p class="help-block text-danger">Type by media tag, without #</p>
                           </div>
                           <!--  <div class="form-group col-xs-6 floating-label-form-group controls">
                             <label>Username</label>
@@ -53,14 +60,15 @@
                           </div> -->
                         </div>
                         <br>
-                            <input name="access_token" type="hidden" value="<?=$access_token?>"/> 
                         <div id="success"></div>
-                          <div class="form-group col-xs-12">
+                          <div class="form-group col-xs-4">
                             <button type="submit" class="btn btn-success btn-lg">Get Media !!</button>
                           </div>
-                        </div>
+                           <div class="form-group col-xs-8">
+                            <a href="/" class="btn btn-lg">Clear</a>
+                          </div>
+                 </div>
                     </form>
-   
                     <div class="row">
                         <div class="media">
                             <?php if(!empty($results['data'])){ foreach($results['data'] as $media) { ?>
@@ -71,14 +79,19 @@
                                         <p class="galeria-caption"><?=$media['caption']['text']?></p>
                                         <p><a href="<?=$media['link']?>" target="_blank"><?=$media['link']?></a></p>				
 				 </div>
-                            <? } } ?>
+                            <? } } else { ?>
+                            <div class="alert alert-warning" style="width: 100%;">
+                                 <strong>No Data</strong> results, try using another tag.
+                            </div>
+                            <? } ?>
                          </div>
                     </div>
-           
+                                        <? } ?>
+                    <!--
                     <pre>
-                        <?php print_r($results); ?>
+                        <?php // print_r($results); ?>
                     </pre> 
-               
+                    -->
                 </div>
                 </div>
             </div>

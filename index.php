@@ -1,91 +1,87 @@
 <?php
-ini_set('display_erros', 'On');error_reporting(E_ALL ^ E_NOTICE);
+error_reporting(E_ALL ^ E_NOTICE);
 require_once "vendor/autoload.php";
 require_once "secret.php";
+require_once "classes/class.instagram.php";
 
-use GuzzleHttp\Client;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-$config['displayErrorDetails'] = true;
-$config['addContentLengthHeader'] = false;
+$config['displayErrorDetails'] = true; $config['addContentLengthHeader'] = false;
+$instagram = new Instagram();
 
 $app = new \Slim\App(["settings" => $config]);
+$app->add(new \RKA\SessionMiddleware(['name' => 'SessiongetInst']));
 $container = $app->getContainer();
 $container['view'] = new \Slim\Views\PhpRenderer("templates/");
+$session = new \RKA\Session();
+$container['access_token'] = ''; $container['user'] = '';
+  
+/*if($session->__isset('access_token') && $session->get('username')==''){
+
+}*/
+$container['session'] = $session;
 
 // PAGINA DE INICIO
 $app->get('/', function (Request $request, Response $response) {
-    
-    return $this->view->render($response, "index.phtml", [ 'urllogin' => URL_LOGIN ]);
-
+    $login = false;
+    if($this->session->__isset('access_token')){
+        $login = true;
+    }
+    return $this->view->render($response, "index.phtml", [ 'urllogin' => URL_LOGIN, 'login' => $login, 'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture') ]);
 });
 
+// LOGIN 
 $app->get('/instalogin', function (Request $request, Response $response) {
-
    $url = "https://api.instagram.com/oauth/authorize/?client_id=".CLIENT_ID."&redirect_uri=".REDIRECT_URL."&response_type=code";
    // envia cabeceras al login de instagram    
    return $response->withStatus(302)->withHeader('Location', $url);
 });
 
+$app->get('/logout', function (Request $request, Response $response) {
+    \RKA\Session::destroy();
+    $login = false;
+    return $this->view->render($response, "index.phtml", [ 'login' => $login ]);
+});
 
 // Despues de loguearme en Instagram en devuelve aqui con el codigo  http://your-redirect-uri?code=CODE
-$app->get('/dos', function (Request $request, Response $response) {
-   $data = array();
+$app->get('/dos', function (Request $request, Response $response, $instagram) {
    // comprobamos que no ha sido error http://your-redirect-uri?error=access_denied&error_reason=user_denied&error_description=The+user+denied+your+request
    if($request->getAttribute('error')){
-        $response = $this->view->render($response, "index.phtml", ["error" => $request->getAttribute('error_reason') ]);
+        $response = $this->view->render($response, "index.phtml", ["error" => $request->getAttribute('error_reason'), 'username' => $this->session->username, 'profile_picture' => $this->session->get('profile_picture') ]);
    }
    $code = $request->getParam('code');
-        $fields = array(
-              'client_id'     => CLIENT_ID,
-              'client_secret' => CLIENT_SECRET,
-              'grant_type'    => 'authorization_code',
-              'redirect_uri'  => REDIRECT_URL,
-              'code'          => $code
-           );
-
-       $url = 'https://api.instagram.com/oauth/access_token';
-       $ch = curl_init();
-       curl_setopt($ch, CURLOPT_URL, $url);
-       curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-       curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-       curl_setopt($ch,CURLOPT_POST,true); 
-       curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-       $result = curl_exec($ch);
-       curl_close($ch); 
-       $data = json_decode($result);
-       $access_token = $data->access_token; 
-       $_SESSION['instagram_access_token'] = $access_token;
-   $response = $this->view->render($response, "index.phtml",array('access_token' => $access_token, 'urllogin' => URL_LOGIN));
+   $data = Instagram::getInstagramAccessToken(CLIENT_ID,CLIENT_SECRET,REDIRECT_URL,$code);
+   if($data->code == '400'){ // Error 
+       $response = $this->view->render($response, "index.phtml", ["error" => true, 'error_type' => $data->error_type, 'error_reason' => $data->error_reason,  'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture') ]);
+        $login = false;  $access_token = '';
+   } else {
+       $this->session->set('access_token', $data->access_token); $login = true; $access_token = $this->access_token;
+       $user = Instagram::getUserSelf($this->session->get('access_token'));
+       $this->session->set('username', $user['data']['username']);
+       $this->session->set('profile_picture', $user['data']['profile_picture']);
+   }
+   $response = $this->view->render($response, "index.phtml",array('access_token' => $access_token, 'login' => $login, 'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture')));
    return $response;
 });
 
 // PULSAMOS GET POSTS !!!
 $app->post('/busca', function (Request $request, Response $response) {
-    $results = array();
+    $results = array(); 
     $tag = $request->getParam('tag'); 
-    $username = $request->getParam('username');
-    $access_token = $request->getParam('access_token');
-        $client = new GuzzleHttp\Client();
+    
+    if($this->session->__isset('access_token')){     $login = true; 
+        $access_token = $this->session->get('access_token');
+    } else {
+          return $response->withStatus(302)->withHeader('Location', '/');  
+    } 
 
-        if($tag != '') {
-            $res = $client->get("https://api.instagram.com/v1/tags/{$tag}/media/recent?access_token={$access_token}"); 
-            $results =  json_decode($res->getBody()->getContents(), true);
-        } /*
-        if ($username != '') {
-           // echo "https://api.instagram.com/v1/users/search?q={$username}&access_token={$access_token}"; die;
-            $res = $client->get("https://api.instagram.com/v1/users/search?q={$username}&access_token={$access_token}");
-            $results =  json_decode($res->getBody()->getContents(), true);
-        } else {
-           $res = $client->get("https://api.instagram.com/v1/users/self/?access_token={$access_token}"); 
-             $results =  json_decode($res->getBody()->getContents(), true);
-        } 
-        */
-        $response = $this->view->render($response, "index.phtml", array('access_token' => $access_token, 
-                                                                        'urllogin' => URL_LOGIN, 
-                                                                            "results" => $results,
-                                                                            'tag' => $tag, 'username' => $username));
+    $results = Instagram::getMediaTag($tag,$access_token);
+    
+    $response = $this->view->render($response, "index.phtml", array('access_token' => $access_token, 
+                                                                        'login' => $login, 
+                                                                        'results' => $results,
+                                                                        'tag' => $tag, 'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture')));
     return $response;
 });
 
