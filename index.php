@@ -16,10 +16,6 @@ $container = $app->getContainer();
 $container['view'] = new \Slim\Views\PhpRenderer("templates/");
 $session = new \RKA\Session();
 $container['access_token'] = ''; $container['user'] = '';
-  
-/*if($session->__isset('access_token') && $session->get('username')==''){
-
-}*/
 $container['session'] = $session;
 
 // PAGINA DE INICIO
@@ -33,7 +29,7 @@ $app->get('/', function (Request $request, Response $response) {
 
 // LOGIN 
 $app->get('/instalogin', function (Request $request, Response $response) {
-   $url = "https://api.instagram.com/oauth/authorize/?client_id=".CLIENT_ID."&redirect_uri=".REDIRECT_URL."&response_type=code";
+   $url = "https://api.instagram.com/oauth/authorize/?client_id=".CLIENT_ID."&redirect_uri=".REDIRECT_URL."&response_type=code&scope=public_content";
    // envia cabeceras al login de instagram    
    return $response->withStatus(302)->withHeader('Location', $url);
 });
@@ -41,7 +37,8 @@ $app->get('/instalogin', function (Request $request, Response $response) {
 $app->get('/logout', function (Request $request, Response $response) {
     \RKA\Session::destroy();
     $login = false;
-    return $this->view->render($response, "index.phtml", [ 'login' => $login ]);
+    $results = Instagram::logout();
+    return $this->view->render($response, "index.phtml", [ 'login' => $login, 'results' => $results ]);
 });
 
 // Despues de loguearme en Instagram en devuelve aqui con el codigo  http://your-redirect-uri?code=CODE
@@ -77,7 +74,7 @@ $app->post('/busca', function (Request $request, Response $response) {
     } 
 
     $results = Instagram::getMediaTag($tag,$access_token);
-    
+
     $response = $this->view->render($response, "index.phtml", array('access_token' => $access_token, 
                                                                         'login' => $login, 
                                                                         'results' => $results,

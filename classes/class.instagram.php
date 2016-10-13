@@ -1,5 +1,6 @@
 <?php
 require_once "session.class.php";
+use GuzzleHttp\Exception\ClientException;
 
 class Instagram
 {
@@ -20,7 +21,6 @@ class Instagram
         $this->password = $password;
     }
 
-    
     public static function getInstagramAccessToken($client_id, $client_secret, $redirect_url, $code) {
           
             $fields = array(
@@ -28,9 +28,9 @@ class Instagram
                   'client_secret' => $client_secret,
                   'grant_type'    => 'authorization_code',
                   'redirect_uri'  => $redirect_url,
-                  'code'          => $code
+                  'code'          => $code,
+                  'scope'         => 'public_content'
                );
-
            $url = 'https://api.instagram.com/oauth/access_token';
            $ch = curl_init();
            curl_setopt($ch, CURLOPT_URL, $url);
@@ -45,41 +45,85 @@ class Instagram
            return $data; 
     }
     
+    /**
+     * Trans el login obteneos el scope necesario public_content y nos devuelve el access token correspondiente
+     */
+    public static function getOauthCodeScope($client_id, $client_secret, $redirect_url, $access_token){
+        $client = new GuzzleHttp\Client();
+        try {
+                $res = $client->request("GET","https://api.instagram.com/oauth/authorize/?client_id=$client_id&redirect_uri=$redirect_url&response_type=code&scope=SCOPE"); 
+                $con = $res->getBody()->getContents();
+                $results =  json_decode($con, true);
+        } catch (ClientException $e) {
+                $res['is_error'] = true;
+                $con = $e->getResponse()->getBody()->getContents();
+                $results = array_merge($results =  json_decode($con, true), $res);
+        }
+        return $results; 
+    }
+    
     public static function getUserSelf($access_token){
-         $client = new GuzzleHttp\Client();
+        $client = new GuzzleHttp\Client();
 
         if($access_token != '') {
             $res = $client->get("https://api.instagram.com/v1/users/self/?access_token={$access_token}"); 
-            $results =  json_decode($res->getBody()->getContents(), true);
+            $con = $res->getBody()->getContents();
+            $results =  json_decode($con, true);
         }
-        /*
-         * {
-                "data": {
-                    "id": "1574083",
-                    "username": "snoopdogg",
-                    "full_name": "Snoop Dogg",
-                    "profile_picture": "http://distillery.s3.amazonaws.com/profiles/profile_1574083_75sq_1295469061.jpg",
-                    "bio": "This is my bio",
-                    "website": "http://snoopdogg.com",
-                    "counts": {
-                        "media": 1320,
-                        "follows": 420,
-                        "followed_by": 3410
-                    }
-            }
-         */
+                                /* {
+                                        "data": {
+                                            "id": "1574083",
+                                            "username": "snoopdogg",
+                                            "full_name": "Snoop Dogg",
+                                            "profile_picture": "http://distillery.s3.amazonaws.com/profiles/profile_1574083_75sq_1295469061.jpg",
+                                            "bio": "This is my bio",
+                                            "website": "http://snoopdogg.com",
+                                            "counts": {
+                                                "media": 1320,
+                                                "follows": 420,
+                                                "followed_by": 3410
+                                            }
+                                    }
+                                 */
         return $results;
     }
     
     public static function getMediaTag($tag, $access_token){
-        $client = new GuzzleHttp\Client();
-        $tag = Instagram::sanitize($tag);
-        if($tag != '') {
-            $res = $client->get("https://api.instagram.com/v1/tags/{$tag}/media/recent?access_token={$access_token}"); 
-            $results =  json_decode($res->getBody()->getContents(), true);
-        } 
+        $client = new GuzzleHttp\Client(); 
+        $tag = Instagram::sanitize($tag); $res = null;
+        try {
+            if($tag != '') {
+                $res = $client->request("GET","https://api.instagram.com/v1/tags/{$tag}/media/recent?access_token={$access_token}"); 
+                $con = $res->getBody()->getContents();
+                $results =  json_decode($con, true);
+            } 
+
+        } catch (ClientException $e) {
+            // To catch exactly error 400 use 
+           // if ($e->getResponse()->getStatusCode() == '400') {
+                $res['is_error'] = true;
+                $con = $e->getResponse()->getBody()->getContents();
+                $results = array_merge($results =  json_decode($con, true), $res);
+            //}
+        }
+        return $results; 
+    }
+    
+    public static function logout(){
+           $client = new GuzzleHttp\Client(); $res = null;
+           try {
+                $res = $client->request("GET","https://instagram.com/accounts/logout/"); 
+                $con = $res->getBody()->getContents();
+                $results =  json_decode($con, true);
+
+            } catch (ClientException $e) {
+
+                $con = $e->getResponse()->getBody()->getContents();
+                $results = array_merge($results =  json_decode($con, true), $res);
+        }
         return $results;
     }
+    
     /**
     * Function: sanitize
     * Returns a sanitized string, typically for URLs.
