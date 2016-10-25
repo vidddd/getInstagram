@@ -24,7 +24,9 @@ $app->get('/', function (Request $request, Response $response) {
     if($this->session->__isset('access_token')){
         $login = true;
     }
-    return $this->view->render($response, "index.phtml", [ 'urllogin' => URL_LOGIN, 'login' => $login, 'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture') ]);
+    return $this->view->render($response, "index.phtml", [ 'urllogin' => URL_LOGIN, 
+                                                           'login' => $login, 
+                                                           'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture') ]);
 });
 
 // LOGIN 
@@ -48,37 +50,45 @@ $app->get('/dos', function (Request $request, Response $response, $instagram) {
         $response = $this->view->render($response, "index.phtml", ["error" => $request->getAttribute('error_reason'), 'username' => $this->session->username, 'profile_picture' => $this->session->get('profile_picture') ]);
    }
    $code = $request->getParam('code');
+   //Obtenemos el access token a partir de code proporcionado por instagram depsues del login
    $data = Instagram::getInstagramAccessToken(CLIENT_ID,CLIENT_SECRET,REDIRECT_URL,$code);
    if($data->code == '400'){ // Error 
        $response = $this->view->render($response, "index.phtml", ["error" => true, 'error_type' => $data->error_type, 'error_reason' => $data->error_reason,  'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture') ]);
         $login = false;  $access_token = '';
    } else {
+       // guardamos en session el access token y los datos del usuario logueado
        $this->session->set('access_token', $data->access_token); $login = true; $access_token = $this->access_token;
        $user = Instagram::getUserSelf($this->session->get('access_token'));
        $this->session->set('username', $user['data']['username']);
        $this->session->set('profile_picture', $user['data']['profile_picture']);
    }
-   $response = $this->view->render($response, "index.phtml",array('access_token' => $access_token, 'login' => $login, 'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture')));
+   $response = $this->view->render($response, "index.phtml",array('access_token' => $access_token, 
+                                                                  'login' => $login, 
+                                                                  'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture')));
    return $response;
 });
 
 // PULSAMOS GET POSTS !!!
 $app->post('/busca', function (Request $request, Response $response) {
     $results = array(); 
-    $tag = $request->getParam('tag'); 
+    $tag = $request->getParam('tag'); $username = $request->getParam('username'); 
     
     if($this->session->__isset('access_token')){     $login = true; 
         $access_token = $this->session->get('access_token');
     } else {
           return $response->withStatus(302)->withHeader('Location', '/');  
     } 
-
-    $results = Instagram::getMediaTag($tag,$access_token);
+    if($tag != ''){ 
+       $results = Instagram::getMediaTag($tag,$access_token); 
+    } 
+    if($username !='') {
+        $results = Instagram::getUserMediaRecent($username,$access_token);
+    }
 
     $response = $this->view->render($response, "index.phtml", array('access_token' => $access_token, 
                                                                         'login' => $login, 
                                                                         'results' => $results,
-                                                                        'tag' => $tag, 'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture')));
+                                                                        'tag' => $tag,'user'=> $username, 'username' => $this->session->get('username'), 'profile_picture' => $this->session->get('profile_picture')));
     return $response;
 });
 

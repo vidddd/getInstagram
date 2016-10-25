@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Get Instagram app</title>
+        <title>Observatory TBWA</title>
 
         <meta charset="UTF-8">
        
@@ -14,14 +14,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div id="content">
-            <div class="intro">
-                <div class="bg">
-                    <div class="bg-img">
-                        <img src="images/IMG_1266.JPG" />
-                    </div>
-                </div>
-            </div>
+    <div id="cabecera">
+    	<img src="../images/logo_header.png">
+    </div>
             <div class="content-left">
                 <div class="containers">
                     <div class="login">
@@ -40,8 +35,8 @@
                 <? } ?>
                 <div class="row space">
                     <div class="headline">
-                        <h2>Get from Instagram</h2> <hr>
-                        <p>App in sandbox mode</p>
+                        <h2>Content Observatory</h2> <hr>
+                        <p>Disruption App</p>
                     </div>
                 </div>
                 <? if($login) { ?>
@@ -49,15 +44,15 @@
                     <form name="getInst" id="instagramForm" method="POST" action="busca" data-toggle="validator" role="form">
                         <div class="row control-group">
                           <div class="form-group col-xs-6 floating-label-form-group controls">
-                            <label>Tag</label>
-                            <input class="form-control" placeholder="Tags" name="tag" id="tag" required type="text" value="<?=$tag?>" />
-                            <p class="help-block text-danger">Type by media tag, without #</p>
+                            <label>Tags</label>
+                            <input class="form-control" placeholder="Tags" name="tag" id="tag" type="text" style="width:300px;" value="<?=$tag?>" />
+                            <p class="help-block text-danger">Type by media tag, without #, separated by blank space" "</p>
                           </div>
-                          <!--  <div class="form-group col-xs-6 floating-label-form-group controls">
+                          <div class="form-group col-xs-6 floating-label-form-group controls">
                             <label>Username</label>
-                            <input class="form-control" placeholder="Username" name="username" id="username" type="text" value="<?=$username?>" />
-                            <p class="help-block text-danger">Type a username</p>
-                          </div> -->
+                            <input class="form-control" placeholder="Username" name="username" id="username" type="text" style="width:300px;" value="<?=$user?>" />
+                            <p class="help-block text-danger">Type a username, without @, get Media recent by user</p>
+                          </div>
                         </div>
                         <br>
                         <div id="success"></div>
@@ -66,12 +61,12 @@
                           </div>
                            <div class="form-group col-xs-8">
                             <a href="/" class="btn btn-lg">Clear</a>
-                          </div>
+                          </div> </form>
                  </div>
-                    </form>
+                   
                     <div class="row">
                         <div class="media">
-                            <?php if($results) {if(!empty($results['data'])){ foreach($results['data'] as $media) { ?>
+                            <?php if($_POST) {if(!empty($results['data'])){ foreach($results['data'] as $media) { ?>
                                 <div class="media-item">
                                     <div class="photo"><img src="<?=$media['images']['low_resolution']['url']?>" alt="" /></div>
 	
@@ -81,22 +76,34 @@
 				 </div>
                             <? } } else { ?>
                             <div class="alert alert-warning" style="width: 100%;">
-                                 <strong>No Data</strong> results, try using another tag.
+                                 <strong>No Data</strong> results, try another input data.
                             </div>
                             <? } } ?>
                          </div>
                     </div>
-                                        <? } ?>
-                    <!--
+                          <? } ?>
+                   <!--
                     <pre>
                         <?php // print_r($results); ?>
                     </pre> 
-                    -->
+                   -->
                 </div>
                 </div>
             </div>
         </div>
         </div>
-
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('#tag').click(function(){
+                    $(this).removeAttr('disabled');
+                        $('#username').prop("disabled", true);  $('#username').val('');
+                });
+                $('#username').click(function(){
+                    
+                    $(this).removeAttr('disabled');
+                        $('#tag').prop("disabled", true);$('#tag').val('');
+                });
+             });
+        </script>
     </body>
 </html>

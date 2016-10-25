@@ -90,12 +90,17 @@ class Instagram
     
     public static function getMediaTag($tag, $access_token){
         $client = new GuzzleHttp\Client(); 
-        $tag = Instagram::sanitize($tag); $res = null;
+        $tag = Instagram::sanitize($tag); $res = null; $results = array();
+        $arr = explode(' ',$tag);$tags = array_unique($arr); 
         try {
             if($tag != '') {
-                $res = $client->request("GET","https://api.instagram.com/v1/tags/{$tag}/media/recent?access_token={$access_token}"); 
-                $con = $res->getBody()->getContents();
-                $results =  json_decode($con, true);
+                foreach ($tags as $tag) {
+                    $res = $client->request("GET","https://api.instagram.com/v1/tags/{$tag}/media/recent?access_token={$access_token}"); 
+                    $con = $res->getBody()->getContents();
+                    $results =  json_decode($con, true);
+                    $results = array_merge($results);
+                }
+
             } 
 
         } catch (ClientException $e) {
@@ -124,6 +129,53 @@ class Instagram
         return $results;
     }
     
+    public static function getUserMediaRecent($username, $access_token){
+        $client = new GuzzleHttp\Client(); $res = null; $results = array();
+        $id = Instagram::getUserId($username,$access_token);
+        
+        if($id === false ){
+           return $results;
+        }
+        try {
+             $res = $client->request("GET","https://api.instagram.com/v1/users/{$id}/media/recent/?access_token={$access_token}"); 
+             $con = $res->getBody()->getContents();
+             $results =  json_decode($con, true);
+
+        } catch (ClientException $e) {
+            // To catch exactly error 400 use 
+           // if ($e->getResponse()->getStatusCode() == '400') {
+                $res['is_error'] = true;
+                $con = $e->getResponse()->getBody()->getContents();
+                $results = array_merge($results =  json_decode($con, true), $res);
+            //}
+        }
+    
+        return $results; 
+    }    
+    
+    public static function getUserId($username, $access_token){
+        $client = new GuzzleHttp\Client(); 
+        $username = Instagram::sanitize($username); $res = null; $results = array();
+        
+        try {
+                $res = $client->request("GET","https://api.instagram.com/v1/users/search?q={$username}&access_token={$access_token}"); 
+                $con = $res->getBody()->getContents();
+                $results =  json_decode($con, true);
+
+        } catch (ClientException $e) {
+            // To catch exactly error 400 use 
+           // if ($e->getResponse()->getStatusCode() == '400') {
+                $res['is_error'] = true;
+                $con = $e->getResponse()->getBody()->getContents();
+                $results = array_merge($results =  json_decode($con, true), $res);
+            //}
+        } 
+        if($results['data'][0]['id']){
+            return $results['data'][0]['id'];
+        } else {
+            return false;
+        }
+    }
     /**
     * Function: sanitize
     * Returns a sanitized string, typically for URLs.
@@ -138,7 +190,7 @@ class Instagram
                       "}", "\\", "|", ";", ":", "\"", "'", "&#8216;", "&#8217;", "&#8220;", "&#8221;", "&#8211;", "&#8212;",
                       "â€”", "â€“", ",", "<", ".", ">", "/", "?");
        $clean = trim(str_replace($strip, "", strip_tags($string)));
-       $clean = preg_replace('/\s+/', "-", $clean);
+      // $clean = preg_replace('/\s+/', "-", $clean);
        $clean = ($anal) ? preg_replace("/[^a-zA-Z0-9]/", "", $clean) : $clean ;
        return ($force_lowercase) ?
            (function_exists('mb_strtolower')) ?
